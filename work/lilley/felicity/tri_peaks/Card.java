@@ -6,16 +6,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 class Card {
-  private static final Set<Character> allowedValues = Set.of('1', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A');
+  private static final Set<Character> ALLOWED_VALUES = Set.of('1', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A');
+  private static final Character HIDDEN_CHARACTER = '*';
+  private static final Character MISSING_CHARACTER = ' ';
+
   private final char value;
+  private Status status;
 
   private Card(Character value) {
     this.value = value;
+    this.status = Status.UNKNOWN;
   }
 
   public static Card from(char value) {
-    if (!allowedValues.contains(value)) {
-      throw new IllegalArgumentException(String.format("%s is not a valid card value: allowed values are %s", value, allowedValues));
+    if (!ALLOWED_VALUES.contains(value)) {
+      throw new IllegalArgumentException(String.format("%s is not a valid card value: allowed values are %s", value, ALLOWED_VALUES));
     }
     return new Card(value);
   }
@@ -30,11 +35,38 @@ class Card {
       .collect(Collectors.toCollection(LinkedList::new));
   }
 
-  public boolean isAllowedValue(Character value) {
-    return allowedValues.contains(value);
+  public Character getValue() {
+    return this.value;
   }
 
-  public Character getValue() {
-    return value;
+  public Status getStatus() {
+    return this.status;
+  }
+
+  public void setStatus(Status status) {
+    this.status = status;
+  }
+
+  public boolean isAllowedValue(Character value) {
+    return ALLOWED_VALUES.contains(value);
+  }
+
+  public Character getDisplayValue(boolean showHidden) {
+    return showHidden ? this.getValue() : this.getMaskedValue();
+  }
+
+  private Character getMaskedValue() {
+    switch (this.status) {
+      case HIDDEN:
+          return HIDDEN_CHARACTER;
+      case REMOVED:
+          return MISSING_CHARACTER;
+      default:
+         return this.getValue();
+    }
+  }
+
+  static enum Status {
+   OPEN, HIDDEN, REMOVED, UNKNOWN
   }
 }
