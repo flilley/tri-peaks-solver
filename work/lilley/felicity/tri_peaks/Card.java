@@ -70,7 +70,7 @@ class Card {
   }
 
   public boolean isAllowedMatch(Card card) {
-    return ALLOWED_MATCHES.get(this.value).contains(card.value);
+    return this.status == Status.OPEN && ALLOWED_MATCHES.get(this.value).contains(card.value);
   }
 
   public boolean isAllowedValue(Character value) {

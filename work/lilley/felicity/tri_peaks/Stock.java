@@ -68,10 +68,14 @@ final class Stock {
   }
 
   private String getSummaryStockString() {
-    return String.format("%s (%d)", getCurrentMatchCard(), stock.size() - 1);
+    return String.format("%s (%d)", getCurrentMatchCard(), stock.size());
   }
 
   public Card getCurrentMatchCard() {
-    return waste.get(0).getKey();
+    return this.waste.get(0).getKey();
+  }
+
+  public boolean hasCardsRemaining() {
+    return !this.stock.isEmpty();
   }
 }

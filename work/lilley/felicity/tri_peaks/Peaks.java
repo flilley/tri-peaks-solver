@@ -2,9 +2,9 @@ package work.lilley.felicity.tri_peaks;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,7 +14,7 @@ final class Peaks {
 
   private final Map<Position, Card> map;
 
-  private Peaks(Map<Position, Card> map, Set<Position> open) {
+  private Peaks(Map<Position, Card> map) {
     this.map = map;
   }
 
@@ -38,7 +38,7 @@ final class Peaks {
       currentSlot++;
     }
 
-    return new Peaks(map, open);
+    return new Peaks(map);
   }
 
   private static Set<Position> getOriginallyOpenCards() {
@@ -60,22 +60,47 @@ final class Peaks {
     StringBuilder displayValue = new StringBuilder();
     for(int level = 0; level <= MAX_LEVEL; level++) {
       displayValue.append(" ".repeat(3-level));
+      StringBuilder levelValue = new StringBuilder();
+      boolean hasValues = false;
       for(int slot = 0; slot < SLOT_COUNT_BY_LEVEL.get(level); slot++) {
         Position currentPosition = Position.from(level, slot);
         if (map.containsKey(currentPosition)) {
           Character cardDisplayValue = map.get(currentPosition).getDisplayValue(showHidden);
-          displayValue.append(cardDisplayValue);
-          displayValue.append(level == 0 ? "    " : (level == 1 && slot % 2 == 1 ? "  ": " "));
+          if(cardDisplayValue != ' '){
+            hasValues = true;
+          }
+          levelValue.append(cardDisplayValue);
+          levelValue.append(level == 0 ? "    " : (level == 1 && slot % 2 == 1 ? "  ": " "));
         }
       }
-      displayValue.append('\n');
+      
+      if (hasValues) {
+        levelValue.append('\n');
+        displayValue.append(levelValue);
+      }
     }
     return displayValue.toString();
   }
 
-  public Set<Entry<Position, Card>> getAllowedMoves(Card currentDiscardCard) {
+  public List<Move> getAllowedMoves(Card currentDiscardCard) {
     return map.entrySet().stream()
-      .filter(entry -> currentDiscardCard.isAllowedMatch(entry.getValue()))
-      .collect(Collectors.toSet());
+      .filter(entry -> entry.getValue().isAllowedMatch(currentDiscardCard))
+      .sorted((e1, e2) -> e1.getKey().getLevel() - e2.getKey().getLevel())
+      .map(entry -> Move.matchCard(entry.getValue(), entry.getKey()))
+      .collect(Collectors.toList());
+  }
+
+  public boolean hasCardsRemaining() {
+    return map.values().stream().anyMatch(card -> card.getStatus() != Card.Status.REMOVED);
+  }
+
+  public void match(Card card, Position position) {
+    card.setStatus(Card.Status.REMOVED);
+    position.getPotentiallyUnblockedPositions()
+      .forEach(p -> {
+        if(p.getBlockingPositions().stream().allMatch(b -> map.get(b).getStatus() == Card.Status.REMOVED)) {
+          map.get(p).setStatus(Card.Status.OPEN);
+        }
+      });
   }
 }
