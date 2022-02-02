@@ -95,4 +95,9 @@ class Card {
   static enum Status {
    OPEN, HIDDEN, REMOVED, UNKNOWN
   }
+
+  @Override
+  public String toString() {
+    return this.getValue().toString();
+  }
 }

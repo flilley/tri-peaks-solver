@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.stream.Collectors;
 
-class Stock {
+final class Stock {
   private static final int EXPECTED_STOCK_SIZE = 24;
 
   private final List<Card> stock;
@@ -61,12 +61,17 @@ class Stock {
   }
 
   private String getFullStockString() {
-    return stock.stream()
+    String stockString = stock.stream()
     .map(c -> c.getValue().toString())
     .collect(Collectors.joining("->"));
+    return String.format("[%s] %s", getCurrentMatchCard(), stockString);
   }
 
   private String getSummaryStockString() {
-    return String.format("%s (%d)", stock.get(0).getValue(), stock.size() - 1);
+    return String.format("%s (%d)", getCurrentMatchCard(), stock.size() - 1);
+  }
+
+  public Card getCurrentMatchCard() {
+    return waste.get(0).getKey();
   }
 }
