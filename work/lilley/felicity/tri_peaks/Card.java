@@ -2,13 +2,35 @@ package work.lilley.felicity.tri_peaks;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.stream.Collectors;
 
 class Card {
-  private static final Set<Character> ALLOWED_VALUES = Set.of('1', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A');
+  private static final Set<Character> ALLOWED_VALUES = Set.of('A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K');
+  private static final Map<Character, Set<Character>> ALLOWED_MATCHES;
   private static final Character HIDDEN_CHARACTER = '*';
   private static final Character MISSING_CHARACTER = ' ';
+
+  static {
+    Map<Character, Set<Character>> allowedMatches = Map.ofEntries(
+      new SimpleImmutableEntry<>('A', Set.of('K', '2')),
+      new SimpleImmutableEntry<>('2', Set.of('A', '3')),
+      new SimpleImmutableEntry<>('3', Set.of('2', '4')),
+      new SimpleImmutableEntry<>('4', Set.of('3', '5')),
+      new SimpleImmutableEntry<>('5', Set.of('4', '6')),
+      new SimpleImmutableEntry<>('6', Set.of('5', '7')),
+      new SimpleImmutableEntry<>('7', Set.of('6', '8')),
+      new SimpleImmutableEntry<>('8', Set.of('7', '9')),
+      new SimpleImmutableEntry<>('9', Set.of('8', 'T')),
+      new SimpleImmutableEntry<>('T', Set.of('9', 'J')),
+      new SimpleImmutableEntry<>('J', Set.of('T', 'Q')),
+      new SimpleImmutableEntry<>('Q', Set.of('J', 'K')),
+      new SimpleImmutableEntry<>('K', Set.of('Q', 'A'))
+    );
+    ALLOWED_MATCHES = allowedMatches;
+  }
 
   private final char value;
   private Status status;
@@ -47,12 +69,16 @@ class Card {
     this.status = status;
   }
 
+  public boolean isAllowedMatch(Card card) {
+    return ALLOWED_MATCHES.get(this.value).contains(card.value);
+  }
+
   public boolean isAllowedValue(Character value) {
     return ALLOWED_VALUES.contains(value);
   }
 
   public Character getDisplayValue(boolean showHidden) {
-    return showHidden ? this.getValue() : this.getMaskedValue();
+    return showHidden ? this.value : this.getMaskedValue();
   }
 
   private Character getMaskedValue() {
@@ -62,7 +88,7 @@ class Card {
       case REMOVED:
           return MISSING_CHARACTER;
       default:
-         return this.getValue();
+         return this.value;
     }
   }
 
