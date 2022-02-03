@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-public class RandomSelectionSolver implements Solver {
+public class RandomSelectionSolver extends Solver {
   private final static double FLIP_THRESHOLD = 0.1;
   private final Random random = new Random();
+
+  public RandomSelectionSolver(Board board) {
+    super(board);
+  }
 
   @Override
   public Move calculateNextMove(Collection<Move> potentialMoves) {

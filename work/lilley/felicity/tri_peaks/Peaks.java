@@ -80,6 +80,10 @@ final class Peaks {
   }
 
   public String getDisplayValue(boolean showHidden) {
+    if (!this.hasCardsRemaining()) {
+      return "<EMPTY>";
+    }
+
     StringBuilder displayValue = new StringBuilder();
     IntStream.rangeClosed(0, MAX_LEVEL)
       .forEach(level -> getDisplayValueForLevel(level, showHidden).ifPresent(v -> displayValue.append(v)));
