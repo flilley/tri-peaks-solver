@@ -21,27 +21,15 @@ final class Board {
     board.stock.discard();
     return board;
   }
-
-  public void reset() {
-    this.stock.reset();
-    this.peaks.reset();
-    this.stock.discard();
-    this.moves.clear();
-  }
   
   public List<Move> getMoves() {
     return this.moves;
   }
 
-  public void print(boolean showHidden) {
-    System.out.println(String.format("The cards in the stock are: %s", this.stock.getDisplayValue(showHidden)));
-    System.out.println(String.format("The table is:\n%s", this.peaks.getDisplayValue(showHidden)));
-  }
-
   public Collection<Move> getPotentialMoves() {
     List<Move> moves = new ArrayList<>();
     if (this.stock.hasCardsRemaining()) {
-      moves.add(Move.flip());
+      moves.add(Move.createFlip());
     }
     moves.addAll(this.peaks.getAllowedMoves(this.stock.getCurrentMatchCard()));
     return moves;
@@ -54,21 +42,44 @@ final class Board {
     return getPotentialMoves().isEmpty() ? GameState.LOST : GameState.PLAYING;
   }
 
+  public void play(Move selectedMove) {
+    this.moves.add(selectedMove);
+    switch(selectedMove.getType()) {
+      case FLIP:
+        playFlip();
+        break;
+      case MATCH:
+        playMatch(selectedMove);
+        break;
+    }
+  }
+
+  private void playFlip() {
+    this.stock.discard();
+  }
+
+  private void playMatch(Move selectedMove) {
+    Card card = selectedMove.getCard().orElseThrow();
+    Position position = selectedMove.getPosition().orElseThrow();
+    this.peaks.match(card, position);
+    this.stock.discard(card);
+  }
+
+  public void reset() {
+    this.stock.reset();
+    this.peaks.reset();
+    this.stock.discard();
+    this.moves.clear();
+  }
+
+  public void print(boolean showHidden) {
+    System.out.println(String.format("The cards in the stock are: %s", this.stock.getDisplayValue(showHidden)));
+    System.out.println(String.format("The table is:\n%s", this.peaks.getDisplayValue(showHidden)));
+  }
+
   enum GameState {
     WON,
     LOST,
     PLAYING
-  }
-
-  public void play(Move selectedMove) {
-    this.moves.add(selectedMove);
-    if (selectedMove.getType() == Move.Type.FLIP) {
-      this.stock.discard();
-    } else  {
-      Card card = selectedMove.getCard().orElseThrow();
-      Position position = selectedMove.getPosition().orElseThrow();
-      this.peaks.match(card, position);
-      this.stock.discard(card);
-    }
   }
 }

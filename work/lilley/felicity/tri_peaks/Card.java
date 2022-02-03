@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.stream.Collectors;
 
-class Card {
+final class Card {
   private static final Set<Character> ALLOWED_VALUES = Set.of('A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K');
   private static final Map<Character, Set<Character>> ALLOWED_MATCHES;
   private static final Character HIDDEN_CHARACTER = '*';

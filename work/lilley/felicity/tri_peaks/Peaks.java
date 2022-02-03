@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -43,8 +44,8 @@ final class Peaks {
 
   private static Set<Position> getOriginallyOpenCards() {
     return IntStream.range(0, SLOT_COUNT_BY_LEVEL.get(3)).boxed()
-    .map(i -> Position.from(3, i))
-    .collect(Collectors.toSet());
+      .map(i -> Position.from(3, i))
+      .collect(Collectors.toSet());
   }
 
   public void reset() {
@@ -56,42 +57,16 @@ final class Peaks {
     });
   }
 
-  public String getDisplayValue(boolean showHidden) {
-    StringBuilder displayValue = new StringBuilder();
-    for(int level = 0; level <= MAX_LEVEL; level++) {
-      displayValue.append(" ".repeat(3-level));
-      StringBuilder levelValue = new StringBuilder();
-      boolean hasValues = false;
-      for(int slot = 0; slot < SLOT_COUNT_BY_LEVEL.get(level); slot++) {
-        Position currentPosition = Position.from(level, slot);
-        if (map.containsKey(currentPosition)) {
-          Character cardDisplayValue = map.get(currentPosition).getDisplayValue(showHidden);
-          if(cardDisplayValue != ' '){
-            hasValues = true;
-          }
-          levelValue.append(cardDisplayValue);
-          levelValue.append(level == 0 ? "    " : (level == 1 && slot % 2 == 1 ? "  ": " "));
-        }
-      }
-      
-      if (hasValues) {
-        levelValue.append('\n');
-        displayValue.append(levelValue);
-      }
-    }
-    return displayValue.toString();
+  public boolean hasCardsRemaining() {
+    return map.values().stream().anyMatch(card -> card.getStatus() != Card.Status.REMOVED);
   }
 
   public List<Move> getAllowedMoves(Card currentDiscardCard) {
     return map.entrySet().stream()
       .filter(entry -> entry.getValue().isAllowedMatch(currentDiscardCard))
       .sorted((e1, e2) -> e1.getKey().getLevel() - e2.getKey().getLevel())
-      .map(entry -> Move.matchCard(entry.getValue(), entry.getKey()))
+      .map(entry -> Move.createMatchCard(entry.getValue(), entry.getKey()))
       .collect(Collectors.toList());
-  }
-
-  public boolean hasCardsRemaining() {
-    return map.values().stream().anyMatch(card -> card.getStatus() != Card.Status.REMOVED);
   }
 
   public void match(Card card, Position position) {
@@ -102,5 +77,37 @@ final class Peaks {
           map.get(p).setStatus(Card.Status.OPEN);
         }
       });
+  }
+
+  public String getDisplayValue(boolean showHidden) {
+    StringBuilder displayValue = new StringBuilder();
+    IntStream.rangeClosed(0, MAX_LEVEL)
+      .forEach(level -> getDisplayValueForLevel(level, showHidden).ifPresent(v -> displayValue.append(v)));
+    return displayValue.toString();
+  }
+
+  private Optional<StringBuilder> getDisplayValueForLevel(int level, boolean showHidden) {
+    final StringBuilder levelValue = new StringBuilder(" ".repeat(3-level));
+
+    List<String> displayValues = IntStream.range(0, SLOT_COUNT_BY_LEVEL.get(level)).boxed()
+      .map(slot -> Position.from(level, slot))
+      .filter(position -> map.containsKey(position))
+      .map(position -> getDisplayValueForPosition(position, showHidden))
+      .toList();
+
+    if(displayValues.stream().anyMatch(c -> !c.isBlank())) {
+      displayValues.forEach(levelValue::append);
+      levelValue.append('\n');
+      return Optional.of(levelValue);
+    }
+
+    return Optional.empty();
+  }
+
+  private String getDisplayValueForPosition(Position position, boolean showHidden) {
+    Character displayValue = map.get(position).getDisplayValue(showHidden);
+    String spaceValue = position.getLevel() == 0 ? "    " : 
+      (position.getLevel() == 1 && position.getSlot() % 2 == 1 ? "  ": " ");
+    return String.format("%s%s", displayValue, spaceValue);
   }
 }

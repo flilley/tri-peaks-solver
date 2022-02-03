@@ -56,26 +56,26 @@ final class Stock {
     }
   }
 
-  public String getDisplayValue(boolean showHidden) {
-    return showHidden ? getFullStockString() : getSummaryStockString();
-  }
-
-  private String getFullStockString() {
-    String stockString = stock.stream()
-    .map(c -> c.getValue().toString())
-    .collect(Collectors.joining("->"));
-    return String.format("[%s] %s", getCurrentMatchCard(), stockString);
-  }
-
-  private String getSummaryStockString() {
-    return String.format("%s (%d)", getCurrentMatchCard(), stock.size());
-  }
-
   public Card getCurrentMatchCard() {
     return this.waste.get(0).getKey();
   }
 
   public boolean hasCardsRemaining() {
     return !this.stock.isEmpty();
+  }
+
+  public String getDisplayValue(boolean showHidden) {
+    return showHidden ? getFullStockString() : getSummaryStockString();
+  }
+
+  private String getFullStockString() {
+    String stockString = stock.stream()
+      .map(c -> c.getValue().toString())
+      .collect(Collectors.joining("->"));
+    return String.format("[%s] %s", getCurrentMatchCard(), stockString);
+  }
+
+  private String getSummaryStockString() {
+    return String.format("%s (%d)", getCurrentMatchCard(), stock.size());
   }
 }

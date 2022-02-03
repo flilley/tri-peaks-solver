@@ -4,6 +4,7 @@ import java.util.Optional;
 
 final class Move {
   private static final Move FLIP = new Move(Type.FLIP, Optional.empty(), Optional.empty());
+
   private final Type type;
   private final Optional<Card> card;
   private final Optional<Position> position;
@@ -14,17 +15,12 @@ final class Move {
     this.position = position;
   }
 
-  static Move matchCard(Card card, Position position) {
+  static Move createMatchCard(Card card, Position position) {
     return new Move(Type.MATCH, Optional.of(card), Optional.of(position));
   }
 
-  static Move flip() {
+  static Move createFlip() {
     return FLIP;
-  }
-
-  enum Type {
-    MATCH,
-    FLIP
   }
 
   Type getType() {
@@ -46,6 +42,11 @@ final class Move {
     }
 
     return String.format("MATCH %s at %s", this.card.get(), this.position.get());
+  }
+
+  enum Type {
+    MATCH,
+    FLIP
   }
 }
 
