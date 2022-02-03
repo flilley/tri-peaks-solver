@@ -64,7 +64,7 @@ final class Position {
 
   protected static final Position from(int level, int slot) {
     if (level > Peaks.MAX_LEVEL || slot >= Peaks.SLOT_COUNT_BY_LEVEL.get(level)) {
-      throw new RuntimeException(String.format("(%d, %s) is not a valid position, level, slot"));
+      throw new RuntimeException(String.format("(%d, %s) is not a valid position", level, slot));
     }
     int hash = hashCode(level, slot);
     POSITIONS.computeIfAbsent(hash, p -> new Position(level, slot));

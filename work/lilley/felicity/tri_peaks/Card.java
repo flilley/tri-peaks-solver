@@ -57,6 +57,10 @@ final class Card {
       .collect(Collectors.toCollection(LinkedList::new));
   }
 
+  public static Set<Character> getAllowedMatchValues(Character value) {
+    return ALLOWED_MATCHES.get(value);
+  }
+
   public Character getValue() {
     return this.value;
   }

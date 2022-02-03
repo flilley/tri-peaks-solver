@@ -57,12 +57,19 @@ final class Peaks {
     });
   }
 
+  Map<Position, Card> getRemainingCards() {
+    return this.map.entrySet().stream()
+      .filter(entry -> entry.getValue().getStatus() != Card.Status.REMOVED)
+      .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+  }
+
   public boolean hasCardsRemaining() {
-    return map.values().stream().anyMatch(card -> card.getStatus() != Card.Status.REMOVED);
+    return this.map.values().stream()
+      .anyMatch(card -> card.getStatus() != Card.Status.REMOVED);
   }
 
   public List<Move> getAllowedMoves(Card currentDiscardCard) {
-    return map.entrySet().stream()
+    return this.map.entrySet().stream()
       .filter(entry -> entry.getValue().isAllowedMatch(currentDiscardCard))
       .sorted((e1, e2) -> e1.getKey().getLevel() - e2.getKey().getLevel())
       .map(entry -> Move.createMatchCard(entry.getValue(), entry.getKey()))

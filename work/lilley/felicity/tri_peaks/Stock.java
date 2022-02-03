@@ -27,6 +27,10 @@ final class Stock {
     return new Stock(stockCards);
   }
 
+  List<Card> getRemainingCards() {
+    return this.stock;
+  }
+
   public Card discard() {
     return this.discard(stock.remove(0), true);
   }

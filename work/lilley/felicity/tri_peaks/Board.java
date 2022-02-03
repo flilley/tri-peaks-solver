@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 final class Board {
   private final Stock stock;
@@ -21,7 +22,19 @@ final class Board {
     board.stock.discard();
     return board;
   }
+
+  public Card getCurrentMatchCard() {
+    return this.stock.getCurrentMatchCard();
+  }
+
+  public List<Card> getRemainingStockCards() {
+    return this.stock.getRemainingCards();
+  }
   
+  public Map<Position, Card> getRemainingPeakCards() {
+    return this.peaks.getRemainingCards();
+  }
+
   public List<Move> getMoves() {
     return this.moves;
   }
